@@ -2723,6 +2723,43 @@ actions:
                     parameters:
                         directoryGlob: '%SYSTEMDRIVE%\Windows.old'
                         grantPermissions: 'true'
+            -
+                name: Remove duplicate drives in File Explorer
+                recommend: standard
+                docs: |-
+                    This script removes the redundant "Drives" group from the File Explorer navigation pane.
+                    
+                    In Windows 11, removable drives often appear twice: once under "This PC" and again under a separate
+                    "Drives" section. This setting eliminates the duplicate entry by removing the registry key that creates it.
+                    
+                    After applying, drives will only be displayed under "This PC" for a cleaner, less cluttered interface.
+                    
+                    This change improves usability by reducing visual clutter without affecting actual drive functionality.
+                    All drives remain fully accessible from the "This PC" section.
+                call:
+                    -
+                        function: Comment
+                        parameters:
+                            codeComment: Remove duplicate drives registry key
+                    -
+                        function: RunPowerShell
+                        parameters:
+                            code: |-
+                                $path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\DelegateFolders\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}"
+                                if (Test-Path $path) {
+                                    Remove-Item -Path $path -Force -Recurse -ErrorAction SilentlyContinue
+                                    Write-Host "✅ Duplicate drives removed from File Explorer"
+                                } else {
+                                    Write-Host "ℹ️ Duplicate drives already removed or not present"
+                                }
+                            revertCode: |-
+                                $path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\DelegateFolders\{F5FB2C77-0E2F-4A16-A381-3E560C68BC83}"
+                                if (-not (Test-Path $path)) {
+                                    New-Item -Path $path -Force -ErrorAction SilentlyContinue | Out-Null
+                                    Write-Host "✅ Duplicate drives restored to File Explorer"
+                                } else {
+                                    Write-Host "ℹ️ Duplicate drives already present"
+                                }
     -
         category: Disable OS data collection
         children:
