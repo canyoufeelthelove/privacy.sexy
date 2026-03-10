@@ -1,5 +1,5 @@
 # Application build artifacts
-/dist-*/
+# /dist-*/
 
 # npm
 node_modules
